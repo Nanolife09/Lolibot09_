@@ -7,17 +7,18 @@ void spin(motor name, int power) {
 }
 
 void tank_ctrl() {
-  spin(rf, ctrl.Axis1.value());
-  spin(rb, ctrl.Axis1.value());
-  spin(lf, ctrl.Axis3.value());
-  spin(lb, ctrl.Axis3.value());
+  while (true) {
+    spin(rf, ctrl.Axis1.value());
+    spin(rb, ctrl.Axis1.value());
+    spin(lf, ctrl.Axis3.value());
+    spin(lb, ctrl.Axis3.value());
+    task::sleep(20);
+  }
 }
 
 void driver_ctrl() {
-  thread update = input_update; 
+  thread update = input_update;
+  thread chassis = tank_ctrl;
   update.join();
-  while (true) {
-    tank_ctrl();
-    task::sleep(20);
-  }
+  chassis.join();
 }
