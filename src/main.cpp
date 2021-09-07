@@ -12,7 +12,6 @@
 
 #include "vex.h"
 #include "driver.h"
-#include "input.h"
 
 using namespace vex;
 
@@ -21,5 +20,5 @@ competition Competition;
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-  Competition.drivercontrol(driver_control);
+  Competition.drivercontrol(driver_ctrl);
 }
