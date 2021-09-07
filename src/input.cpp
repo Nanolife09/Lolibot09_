@@ -1,4 +1,5 @@
 #include "vex.h"
+#include "robo-config.h"
 
 controller ctrl;
 
@@ -17,5 +18,7 @@ void input_update () {
     buttonB = (ctrl.ButtonB.pressing()) ? true : false;
     buttonX = (ctrl.ButtonX.pressing()) ? true : false;
     buttonY = (ctrl.ButtonY.pressing()) ? true : false;
+    Brain.Screen.setCursor(1,1);
+    Brain.Screen.printf("updating");
   }
 }
