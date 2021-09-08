@@ -10,7 +10,7 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
-#include "vex.h"
+#include "debug.h"
 #include "driver.h"
 
 using namespace vex;
@@ -20,5 +20,6 @@ competition Competition;
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-  Competition.drivercontrol(driver_ctrl);
+  //Competition.drivercontrol(driver_ctrl);
+  debug();
 }

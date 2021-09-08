@@ -8,7 +8,7 @@ void spin(motor name, int power) {
 
 int power_limit (int value, int limits) {
   if (abs(value) < limits) {
-    return value * 0.5;
+    return value * 0.3;
   }
   else {
     return value;
@@ -17,10 +17,10 @@ int power_limit (int value, int limits) {
 
 void tank_ctrl() {
   while (true) {
-    spin(rf, power_limit(ctrl.Axis1.value(), 50));
-    spin(rb, power_limit(ctrl.Axis1.value(), 50));
-    spin(lf, power_limit(ctrl.Axis1.value(), 50));
-    spin(lb, power_limit(ctrl.Axis1.value(), 50));
+    spin(rf, power_limit(ctrl.Axis2.value(), 70));
+    spin(rb, power_limit(ctrl.Axis2.value(), 70));
+    spin(lf, power_limit(ctrl.Axis3.value(), 70));
+    spin(lb, power_limit(ctrl.Axis3.value(), 70));
     task::sleep(20);
   }
 }

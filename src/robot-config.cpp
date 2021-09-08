@@ -11,7 +11,9 @@ motor lf (PORT3, true);
 motor lb (PORT12, true);
 motor rf (PORT10);
 motor rb (PORT20);
-digital_out piston = digital_out(Brain.ThreeWirePort.A);
+digital_out piston = Brain.ThreeWirePort.E;
+encoder encoderR = Brain.ThreeWirePort.A;
+encoder encoderL = Brain.ThreeWirePort.C;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

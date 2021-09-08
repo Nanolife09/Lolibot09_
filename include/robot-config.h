@@ -8,6 +8,8 @@ extern motor rf;
 extern motor rb;
 extern motor lf;
 extern digital_out piston;
+extern encoder encoderR;
+extern encoder encoderL;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
