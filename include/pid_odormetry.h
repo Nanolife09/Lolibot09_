@@ -3,23 +3,31 @@
 
 #include "vex.h"
 #include "robot-config.h"
-#include <chrono>
+#include "driver.h"
 
 class PID_ODORMETRY {
-  const float KP = 0;
-  const float KI = 0;
-  const float KD = 0;
-  float power;
-  float prev_position;
-  float prev_velocity;
-  float velocity;
-  std::chrono::high_resolution_clock::time_point start;
-  std::chrono::high_resolution_clock::time_point end;
-  std::chrono::duration <float> time_change;
-  int error;
+  const double KP = 0;
+  const double KI = 0;
+  const double KD = 0;
+  float average_position = 0;
+  int error = 0;
+  int prev_error = 0;
+  int total_error = 0;
+  int derivative = error - prev_error;
+  double motor_power;
+  //------------------------------
+  const double turn_KP = 0;
+  const double turn_KI = 0;
+  const double turn_KD = 0;
+  float turn_difference;
+  int turn_error = 0;
+  int turn_prev_error = 0;
+  int turn_total_error = 0;
+  int turn_derivative = error - prev_error;
+  double turn_motor_power;
   public:
-  PID_ODORMETRY();
-  int value(encoder name, int target);
+  enum position {lateral, turn};
+  int PID_CONTROL(int target, int pos);
 };
 
 #endif
