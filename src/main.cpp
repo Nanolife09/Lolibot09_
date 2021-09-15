@@ -21,5 +21,5 @@ int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
   //Competition.drivercontrol(driver_ctrl);
-  debug();
+  Competition.drivercontrol(mogo_lift_ctrl);
 }

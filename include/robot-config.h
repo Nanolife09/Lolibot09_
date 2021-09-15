@@ -7,6 +7,7 @@ extern motor lb;
 extern motor rf;
 extern motor rb;
 extern motor lf;
+extern motor lift;
 extern digital_out piston;
 extern encoder encoderR;
 extern encoder encoderL;

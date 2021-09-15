@@ -11,6 +11,7 @@ motor lf (PORT3, true);
 motor lb (PORT12, true);
 motor rf (PORT10);
 motor rb (PORT20);
+motor lift (PORT18);
 digital_out piston = Brain.ThreeWirePort.E;
 encoder encoderR = Brain.ThreeWirePort.A;
 encoder encoderL = Brain.ThreeWirePort.C;
