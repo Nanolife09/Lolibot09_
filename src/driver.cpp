@@ -43,24 +43,25 @@ void piston_ctrl() {
 int count = 0;
 
 void mogo_lift_ctrl() {
+  bool is_lifted = false;
   while (true) {
-    count = 0;
     if (ctrl.ButtonL1.pressing()) {
-      count++;
-      Brain.Screen.setCursor(1, 1);
-      Brain.Screen.print("L1");
-      Brain.Screen.setCursor(2, 1);
-      Brain.Screen.print("%f", count);
+      is_lifted = true;
     }
-    else if (ctrl.ButtonL2.pressing()){
-      count++;
-      Brain.Screen.setCursor(1, 1);
-      Brain.Screen.print("L2");
-      Brain.Screen.setCursor(2, 1);
-      Brain.Screen.print("%f", count);
+    else if (ctrl.ButtonL2.pressing()) {
+      is_lifted = false;
     }
-    else {
-      Brain.Screen.clearScreen();
+    if (is_lifted) {
+      while (lift.rotation(rotationUnits::raw) < 1000) {
+        spin(lift, 70);
+      }
+      lift.setBrake(brakeType::hold);
+    }
+    else if (!is_lifted) {
+      while (lift.rotation(rotationUnits::raw) > 250) {
+        spin(lift, -70);
+      }
+      lift.setBrake(brakeType::hold);
     }
   }
 }
