@@ -40,7 +40,9 @@ void piston_ctrl() {
 }
 */
 
-int count = 0;
+int lift_min = 0;
+int lift_max = 2000;
+float lift_KP = 0.25;
 
 void mogo_lift_ctrl() {
   bool is_lifted = false;
@@ -52,16 +54,32 @@ void mogo_lift_ctrl() {
       is_lifted = false;
     }
     if (is_lifted) {
-      while (lift.rotation(rotationUnits::raw) < 1000) {
-        spin(lift, 70);
+      while (lift.rotation(rotationUnits::deg) < lift_max) {
+        spin(lift, ((lift_max - lift.rotation(rotationUnits::deg)) * lift_KP));
+        Brain.Screen.setCursor(1, 1);
+        Brain.Screen.print("Rotation: %f", lift.rotation(rotationUnits::deg));
+        Brain.Screen.setCursor(3, 1);
+        Brain.Screen.print("Power: %f", (lift_max - lift.rotation(rotationUnits::deg)) * lift_KP);
       }
-      lift.setBrake(brakeType::hold);
+      lift.stop();
+      Brain.Screen.setCursor(1, 1);
+      Brain.Screen.print("Rotation: %f", lift.rotation(rotationUnits::deg));
+      Brain.Screen.setCursor(3, 1);
+      Brain.Screen.print("Power: %f", (lift_max - lift.rotation(rotationUnits::deg)) * lift_KP);
     }
     else if (!is_lifted) {
-      while (lift.rotation(rotationUnits::raw) > 250) {
-        spin(lift, -70);
+      while (lift.rotation(rotationUnits::deg) > lift_min) {
+        spin(lift, -lift.rotation(rotationUnits::deg) * lift_KP);
+        Brain.Screen.setCursor(1, 1);
+        Brain.Screen.print("Rotation: %f", lift.rotation(rotationUnits::deg));
+        Brain.Screen.setCursor(3, 1);
+        Brain.Screen.print("Power: %f", -lift.rotation(rotationUnits::deg) * lift_KP);
       }
-      lift.setBrake(brakeType::hold);
+      lift.stop();
+      Brain.Screen.setCursor(1, 1);
+      Brain.Screen.print("Rotation: %f", lift.rotation(rotationUnits::deg));
+      Brain.Screen.setCursor(3, 1);
+        Brain.Screen.print("Power: %f", -lift.rotation(rotationUnits::deg) * lift_KP);
     }
   }
 }

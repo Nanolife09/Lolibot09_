@@ -7,7 +7,6 @@
 
 class PID_ODORMETRY {
   const double KP = 0;
-  const double KI = 0;
   const double KD = 0;
   float average_position = 0;
   int error = 0;
@@ -17,7 +16,6 @@ class PID_ODORMETRY {
   double motor_power;
   //------------------------------
   const double turn_KP = 0;
-  const double turn_KI = 0;
   const double turn_KD = 0;
   float turn_difference;
   int turn_error = 0;

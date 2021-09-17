@@ -13,8 +13,8 @@ int PID_ODORMETRY::PID_CONTROL (int target, int pos) {
     total_error += error;
     turn_total_error += turn_error;
 
-    motor_power = error * KP + derivative * KD + total_error * KI;
-    turn_motor_power = turn_error * turn_KP + turn_derivative * turn_KD + turn_total_error * turn_KI;
+    motor_power = error * KP + derivative * KD;
+    turn_motor_power = turn_error * turn_KP + turn_derivative * turn_KD;
     prev_error = error;
     turn_prev_error = turn_error;
     task::sleep(20);
