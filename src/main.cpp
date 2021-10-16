@@ -12,6 +12,7 @@
 
 #include "debug.h"
 #include "driver.h"
+#include "auton.h"
 
 using namespace vex;
 
@@ -20,6 +21,6 @@ competition Competition;
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-  //Competition.drivercontrol(driver_ctrl);
-  Competition.drivercontrol(mogo_lift_ctrl);
+  Competition.drivercontrol(driver_ctrl);
+  Competition.autonomous(auton_ctrl);
 }

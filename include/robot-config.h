@@ -7,10 +7,9 @@ extern motor lb;
 extern motor rf;
 extern motor rb;
 extern motor lf;
-extern motor lift;
-extern digital_out piston;
-extern encoder encoderR;
-extern encoder encoderL;
+extern motor liftr;
+extern motor liftl;
+extern motor clamp;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
