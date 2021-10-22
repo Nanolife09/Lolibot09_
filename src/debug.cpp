@@ -10,8 +10,6 @@ float rotation_value (motor name) {
 void debug() {
   while (true){
     Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Left rotation: %f", rotation_value(lf));
-    Brain.Screen.setCursor(3, 1);
-    Brain.Screen.print("right rotation: %f", rotation_value(rf));
+    Brain.Screen.print(rotation_value(clamp));
   }
 }

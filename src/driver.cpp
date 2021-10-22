@@ -1,16 +1,20 @@
 #include "vex.h"
 #include "robot-config.h"
+#include "debug.h"
 #include <cmath>
 
 //------------------------------------------settings----------------------------------------//
 
-int change_sens = 80; // set a axis value where the power of the chassis changes from fast to slow or viceversa
+int change_sens = 50; // set a axis value where the power of the chassis changes from fast to slow or viceversa (0 to 127)
+int dead_zone = 50; // sets a maximum power of the chassis value for the span of slow mode (0 to 100)
+int lift_power_limit = 30; // sets a minimum power value of the chassis when the lift is fully lifted (0 to 100)
+int lift_rotation_error = 200;
 
-int liftl_max = 650; // sets a maximum rotation of the liftl
-int manual_power = 70; // sets a liftl power when liftl is manually control
+int lift_max = 4000; // sets a maximum rotation of the liftl
+int manual_power = 100; // sets a lift power when liftl is manually control (0 to 100)
 
-int clamp_max = 0; // sets a max limit for the clamp
-int clamp_power = 0; // sets a motor power for the clamp
+int clamp_max = 400; // sets a max limit for the clamp
+int clamp_power = 50; // sets a motor power for the clamp (0 to 100)
 
 //-----------------------------DO NOT TOUCH ANYTHING FROM HERE----------------------//
 
@@ -20,74 +24,80 @@ void spin(motor name, int power) {
 
 int lift_power = 0;
 
-void toggle_lift_up() {
-  while (liftl.rotation(rotationUnits::raw) < liftl_max) {
-    lift_power = (100/std::pow(liftl_max/2,2)) * liftl.rotation(rotationUnits::raw) * (liftl.rotation(rotationUnits::raw) - liftl_max);
-    spin(liftl, lift_power);
-    spin(liftr, lift_power);
-  }
-  liftl.stop();
-  liftr.stop();
-}
-
-void toggle_lift_down() {
-  while (liftl.rotation(rotationUnits::raw) > 0) {
-    lift_power = (100/std::pow(liftl_max/2,2)) * liftl.rotation(rotationUnits::raw) * (liftl.rotation(rotationUnits::raw) - liftl_max);
-    spin(liftl, -lift_power);
-    spin(liftr, -lift_power);
-    task::sleep(20);
-  }
-  liftl.stop();
-  liftr.stop();
-  clamp.rotateTo(0, rotationUnits::raw, clamp_power, velocityUnits::pct);
-}
-
-void toggle_lift_ctrl() {
-  ctrl.ButtonL1.pressed(toggle_lift_up);
-  ctrl.ButtonL2.pressed(toggle_lift_down);
-}
-
 void manual_lift_ctrl() {
-  if (ctrl.ButtonR1.pressing() && liftl.rotation(rotationUnits::raw) < liftl_max) {
-    spin(liftl, manual_power);
-    spin(liftr, manual_power);
+  while (true) {
+    if (ctrl.ButtonR1.pressing() && liftl.rotation(rotationUnits::raw) < lift_max) {
+      spin(liftl, manual_power);
+      spin(liftr, manual_power);
+    }
+    else if (ctrl.ButtonR2.pressing() && liftl.rotation(rotationUnits::raw) > 100) {
+      spin(liftl, -manual_power);
+      spin(liftr, -manual_power);
+    }
+    else {
+      spin(liftl,0);
+      spin(liftr, 0);
+      liftl.setBrake(brakeType::hold);
+      liftr.setBrake(brakeType::hold);
+    }
   }
-  else if (ctrl.ButtonR2.pressing() && liftl.rotation(rotationUnits::raw) > 0) {
-    spin(liftl, -manual_power);
-    spin(liftr, -manual_power);
+}
+
+void mogo_clamp_ctrl() {
+  while (true) {
+    if (ctrl.ButtonL1.pressing() && clamp.rotation(rotationUnits::raw) < clamp_max) {
+      spin(clamp, clamp_power);
+    }
+    else if (ctrl.ButtonL2.pressing() && clamp.rotation(rotationUnits::raw) > 0) {
+      spin(clamp, -clamp_power);
+    }
+    else {
+      spin(clamp,0);
+      clamp.setBrake(brakeType::hold);
+    }
   }
 }
 
 void mogo_lift_ctrl() {
-  thread toggle = toggle_lift_ctrl;
   thread manual = manual_lift_ctrl;
+  thread clamp_ctrl = mogo_clamp_ctrl;
   while (true) {
-    toggle.join();
     manual.join();
+    clamp_ctrl.join();
     task::sleep(20);
   }
 }
 
+int left_power = 0;
+int right_power = 0;
+
 void tank_ctrl() {
-  int left_power = 0;
-  int right_power = 0;
   while (true) {
     //Left motors power calculations //DO NOT TOUCH THIS!
     // sets a motor power based on the axis value
-    if (-change_sens < ctrl.Axis2.value() && ctrl.Axis2.value() < change_sens) {left_power = (50/std::pow(change_sens,3));}
-    else if (ctrl.Axis2.value() < -change_sens) {left_power = 5/2 * (ctrl.Axis2.value() + 50) - 50;}
-    else if (change_sens < ctrl.Axis2.value()) {left_power = 5/2 * (ctrl.Axis2.value() - 50) + 50;}
-    // sets a motor power based on the rotation of the lift
-    if (ctrl.Axis2.value() < 0) {left_power *= -(std::sqrt((2500/-liftl_max)*(liftl.rotation(rotationUnits::raw) -liftl_max)) + 50);}
-    else if (0 < ctrl.Axis2.value()) {left_power *= (std::sqrt((2500/-liftl_max)*(liftl.rotation(rotationUnits::raw) -liftl_max)) + 50);}
+    if (-change_sens <= ctrl.Axis3.value() && ctrl.Axis3.value() <= change_sens) {
+      left_power = (dead_zone/std::pow(change_sens,3)) * std::pow(ctrl.Axis3.value(),3) * 0.8;
+    }
+    else {
+      left_power = ctrl.Axis3.value();
+    }
+    
+    // sets a motor power based on the rotation of the lift 
+    //left_power *= (-((100 - lift_power_limit) * 0.01/lift_max) * liftl.rotation(rotationUnits::raw) + 1); 
+
     //Right motors power calculations // DO NOT TOUCH THIS!
     // sets a motor power based on the axis value
-    if (-change_sens < ctrl.Axis3.value() && ctrl.Axis3.value() < change_sens){right_power = (50/std::pow(change_sens,3));}
-    else if (ctrl.Axis3.value() < -change_sens) {right_power = 5/2 * (ctrl.Axis3.value() + 50) - 50;}
-    else if (change_sens < ctrl.Axis3.value()) {right_power = 5/2 * (ctrl.Axis3.value() - 50) + 50;}
-    // sets a motor power based on the rotation of the liftl
-    if (ctrl.Axis3.value() < 0) {right_power *= -(std::sqrt((2500/-liftl_max)*(liftl.rotation(rotationUnits::raw) -liftl_max)) + 50);}
-    else if (0 < ctrl.Axis3.value()) {right_power *= (std::sqrt((2500/-liftl_max)*(liftl.rotation(rotationUnits::raw) -liftl_max)) + 50);}
+    if (-change_sens < ctrl.Axis2.value() && ctrl.Axis2.value() < change_sens) {
+      right_power = dead_zone/std::pow(change_sens,3) * std::pow(ctrl.Axis2.value(),3) * 0.8;
+    }
+    else if (ctrl.Axis2.value() < -change_sens) {
+      right_power = ctrl.Axis2.value();
+    }
+    else if (change_sens < ctrl.Axis2.value()) {
+      right_power = ctrl.Axis2.value();
+    }
+    // sets a motor power based on the rotation of the lift
+    //right_power *= (-(lift_power_limit * 0.01/lift_max) * liftl.rotation(rotationUnits::raw) + 1); 
 
     //motor spins
     spin(rf, right_power);
@@ -100,12 +110,20 @@ void tank_ctrl() {
   }
 }
 
+void test () {
+  while (true) {
+    spin(rf, ctrl.Axis2.value());
+    spin(rb, ctrl.Axis2.value());
+    spin(lf, ctrl.Axis3.value());
+    spin(lb, ctrl.Axis3.value());
+  }
+}
+
 void driver_ctrl() {
   thread tank = tank_ctrl;
-  thread mogo = mogo_lift_ctrl;
+  thread lift = mogo_lift_ctrl;
   while (true) {
     tank.join();
-    mogo.join();
-    task::sleep(20);
+    lift.join();
   }
 }

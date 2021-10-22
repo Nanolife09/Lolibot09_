@@ -7,13 +7,13 @@ using namespace vex;
 brain Brain;
 controller ctrl;
 
-motor lf (PORT14, true);
-motor lb (PORT17, true);
-motor rf (PORT11);
+motor lf (PORT5, true);
+motor lb (PORT4, true);
+motor rf (PORT9);
 motor rb (PORT10);
-motor liftr (PORT3, true);
-motor liftl (PORT2, true);
-motor clamp (PORT1);
+motor liftr (PORT20);
+motor liftl (PORT11, true);
+motor clamp (PORT16);
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

@@ -13,6 +13,7 @@
 #include "debug.h"
 #include "driver.h"
 #include "auton.h"
+#include <cmath>
 
 using namespace vex;
 
@@ -22,5 +23,6 @@ int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
   Competition.drivercontrol(driver_ctrl);
-  Competition.autonomous(auton_ctrl);
+  //Competition.autonomous(auton_ctrl);
+  debug();
 }
