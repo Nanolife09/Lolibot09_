@@ -13,7 +13,6 @@
 #include "debug.h"
 #include "driver.h"
 #include "auton.h"
-#include <cmath>
 
 using namespace vex;
 

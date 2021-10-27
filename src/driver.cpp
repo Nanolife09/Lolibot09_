@@ -7,7 +7,7 @@
 
 int change_sens = 50; // set a axis value where the power of the chassis changes from fast to slow or viceversa (0 to 127)
 int dead_zone = 50; // sets a maximum power of the chassis value for the span of slow mode (0 to 100)
-int lift_power_limit = 30; // sets a minimum power value of the chassis when the lift is fully lifted (0 to 100)
+int lift_power_limit = 50; // sets a minimum power value of the chassis when the lift is fully lifted (0 to 100)
 int lift_rotation_error = 200;
 
 int lift_max = 4000; // sets a maximum rotation of the liftl
@@ -68,27 +68,27 @@ void mogo_lift_ctrl() {
   }
 }
 
-int left_power = 0;
-int right_power = 0;
+float left_power = 0;
+float right_power = 0;
 
 void tank_ctrl() {
   while (true) {
     //Left motors power calculations //DO NOT TOUCH THIS!
     // sets a motor power based on the axis value
     if (-change_sens <= ctrl.Axis3.value() && ctrl.Axis3.value() <= change_sens) {
-      left_power = (dead_zone/std::pow(change_sens,3)) * std::pow(ctrl.Axis3.value(),3) * 0.8;
+      left_power = (dead_zone/std::pow(change_sens,3)) * std::pow(ctrl.Axis3.value(),3);
     }
     else {
       left_power = ctrl.Axis3.value();
     }
     
     // sets a motor power based on the rotation of the lift 
-    //left_power *= (-((100 - lift_power_limit) * 0.01/lift_max) * liftl.rotation(rotationUnits::raw) + 1); 
+    left_power *= -(1 - (lift_power_limit * 0.01)) * liftl.rotation(rotationUnits::raw)/(lift_max + lift_rotation_error) + 1;
 
     //Right motors power calculations // DO NOT TOUCH THIS!
     // sets a motor power based on the axis value
     if (-change_sens < ctrl.Axis2.value() && ctrl.Axis2.value() < change_sens) {
-      right_power = dead_zone/std::pow(change_sens,3) * std::pow(ctrl.Axis2.value(),3) * 0.8;
+      right_power = dead_zone/std::pow(change_sens,3) * std::pow(ctrl.Axis2.value(),3);
     }
     else if (ctrl.Axis2.value() < -change_sens) {
       right_power = ctrl.Axis2.value();
@@ -96,8 +96,9 @@ void tank_ctrl() {
     else if (change_sens < ctrl.Axis2.value()) {
       right_power = ctrl.Axis2.value();
     }
+
     // sets a motor power based on the rotation of the lift
-    //right_power *= (-(lift_power_limit * 0.01/lift_max) * liftl.rotation(rotationUnits::raw) + 1); 
+    right_power *= -(1 - (lift_power_limit * 0.01)) * liftl.rotation(rotationUnits::raw)/(lift_max + lift_rotation_error) + 1;
 
     //motor spins
     spin(rf, right_power);
