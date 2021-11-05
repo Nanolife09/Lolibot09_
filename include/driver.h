@@ -2,6 +2,15 @@
 #define DRIVER_HFILE
 #include "vex.h"
 
+extern int change_sens;
+extern int dead_zone;
+extern int lift_power_limit;
+extern int lift_rotation_error;
+extern int lift_max;
+extern int manual_power;
+extern int clamp_max;
+extern int clamp_power;
+
 extern void spin(motor name, int power);
 extern void driver_ctrl();
 

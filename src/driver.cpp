@@ -8,13 +8,16 @@
 int change_sens = 50; // set a axis value where the power of the chassis changes from fast to slow or viceversa (0 to 127)
 int dead_zone = 50; // sets a maximum power of the chassis value for the span of slow mode (0 to 100)
 int lift_power_limit = 50; // sets a minimum power value of the chassis when the lift is fully lifted (0 to 100)
-int lift_rotation_error = 200;
+int lift_rotation_error = 0; // sets a value so that the rotation error do not mess up the whole system (do not touch it unless it is necessary)
 
-int lift_max = 4000; // sets a maximum rotation of the liftl
-int manual_power = 100; // sets a lift power when liftl is manually control (0 to 100)
+int lift_max = 4000; // sets a maximum rotation of the lift
+int manual_power = 100; // sets a lift power (0 to 100)
 
-int clamp_max = 400; // sets a max limit for the clamp
-int clamp_power = 50; // sets a motor power for the clamp (0 to 100)
+int clamp_max = 300; // sets a max limit for the clamp
+int clamp_power = 80; // sets a motor power for the clamp (0 to 100)
+
+int back_max = 1000; // sets a max limit for the back
+int back_power = 100; // sets a power for the back
 
 //-----------------------------DO NOT TOUCH ANYTHING FROM HERE----------------------//
 
@@ -23,6 +26,8 @@ void spin(motor name, int power) {
 }
 
 int lift_power = 0;
+int left_power;
+int right_power;
 
 void manual_lift_ctrl() {
   while (true) {
@@ -30,7 +35,7 @@ void manual_lift_ctrl() {
       spin(liftl, manual_power);
       spin(liftr, manual_power);
     }
-    else if (ctrl.ButtonR2.pressing() && liftl.rotation(rotationUnits::raw) > 100) {
+    else if (ctrl.ButtonR2.pressing() && liftl.rotation(rotationUnits::raw) > lift_rotation_error) {
       spin(liftl, -manual_power);
       spin(liftr, -manual_power);
     }
@@ -58,18 +63,31 @@ void mogo_clamp_ctrl() {
   }
 }
 
-void mogo_lift_ctrl() {
-  thread manual = manual_lift_ctrl;
-  thread clamp_ctrl = mogo_clamp_ctrl;
-  while (true) {
-    manual.join();
-    clamp_ctrl.join();
-    task::sleep(20);
+void back_ctrl() {
+  //A for up
+  if (ctrl.ButtonA.pressing() && rotation_value(back) > 0) {
+    spin(back, back_power);
+  }
+  //x for down
+  else if (ctrl.ButtonX.pressing() && rotation_value(back) < clamp_max) {
+    spin(back, -back_power);
+  }
+  else {
+    back.stop();
   }
 }
 
-float left_power = 0;
-float right_power = 0;
+void mogo_lift_ctrl() {
+  thread Lift = manual_lift_ctrl;
+  thread Clamp_ctrl = mogo_clamp_ctrl;
+  thread Back = back_ctrl;
+  while (true) {
+    Lift.join();
+    Clamp_ctrl.join();
+    Back.join();
+    task::sleep(20);
+  }
+}
 
 void tank_ctrl() {
   while (true) {
@@ -108,15 +126,6 @@ void tank_ctrl() {
 
     //hardware friendly pause :)
     task::sleep(20);
-  }
-}
-
-void test () {
-  while (true) {
-    spin(rf, ctrl.Axis2.value());
-    spin(rb, ctrl.Axis2.value());
-    spin(lf, ctrl.Axis3.value());
-    spin(lb, ctrl.Axis3.value());
   }
 }
 

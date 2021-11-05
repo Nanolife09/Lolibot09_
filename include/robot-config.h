@@ -9,6 +9,7 @@ extern motor rb;
 extern motor lf;
 extern motor liftr;
 extern motor liftl;
+extern motor back;
 extern motor clamp;
 
 /**

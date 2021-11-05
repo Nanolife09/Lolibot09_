@@ -2,27 +2,36 @@
 #include "driver.h"
 #include "debug.h"
 
-std::vector <int> target;
+int sign;
 
-void encoder_forward (int target) {
-  const float a = 0.075;
-  while (rf.rotation(rotationUnits::raw) <= abs(target)){
-    int power = 0;
-    if (target < 0) {
-      power = (rf.rotation(rotationUnits::raw) - target) * a;
-    }
-    else if (target > 0) {
-      power = (target - rf.rotation(rotationUnits::raw)) * a;
-    }
-    spin(rf, power);
-    spin(lf, power);
-    spin(lb, power);
-    spin(rb, power);
+void vertical (int target, int power = 100) {
+  sign = (target < 0) ? -1 : 1;
+  while (std::abs(rotation_value(lf)) < std::abs(target)) {
+    spin(lf, power * sign);
+    spin(rf, power * sign);
+    spin(lb, power * sign);
+    spin(rb, power * sign);
   }
-  rf.stop();
   lf.stop();
   lb.stop();
   rb.stop();
+  rf.stop();
+  lf.resetRotation();
+}
+
+void turn (int target, int power = 100) {
+  sign = (target < 0) ? -1 : 1;
+  while (std::abs(rotation_value(lf)) < std::abs(target)) {
+    spin(lf, power * sign);
+    spin(rf, power * sign);
+    spin(lb, -power * sign);
+    spin(rb, -power * sign);
+  }
+  lf.stop();
+  lb.stop();
+  rb.stop();
+  rf.stop();
+  lf.resetRotation();
 }
 
 void red_right () {
@@ -42,7 +51,7 @@ void blue_left () {
 }
 
 void skill () {
-  encoder_forward(1000);
+
 }
 
 int auton_option = 4;
