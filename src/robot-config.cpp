@@ -13,7 +13,7 @@ motor rf    (PORT9);
 motor rb    (PORT12);
 motor liftr (PORT3);
 motor liftl (PORT10, true);
-motor back  (PORT1);
+motor back  (PORT4);
 motor clamp (PORT6, true);
 
 /**
