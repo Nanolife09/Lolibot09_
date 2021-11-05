@@ -11,7 +11,7 @@ int lift_power_limit = 50; // sets a minimum power value of the chassis when the
 int lift_rotation_error = 0; // sets a value so that the rotation error do not mess up the whole system (do not touch it unless it is necessary)
 
 int lift_max = 4000; // sets a maximum rotation of the lift
-int manual_power = 100; // sets a lift power (0 to 100)
+int lift_power = 100; // sets a lift power (0 to 100)
 
 int clamp_max = 300; // sets a max limit for the clamp
 int clamp_power = 80; // sets a motor power for the clamp (0 to 100)
@@ -25,19 +25,21 @@ void spin(motor name, int power) {
   name.spin(directionType::fwd, power, velocityUnits::pct);
 }
 
-int lift_power = 0;
 int left_power;
 int right_power;
 
 void manual_lift_ctrl() {
   while (true) {
-    if (ctrl.ButtonR1.pressing() && liftl.rotation(rotationUnits::raw) < lift_max) {
-      spin(liftl, manual_power);
-      spin(liftr, manual_power);
+    if (ctrl.ButtonR1.pressing() && rotation_value(liftl) < lift_max) {
+      spin(liftl, lift_power);
+      spin(liftr, lift_power);
     }
-    else if (ctrl.ButtonR2.pressing() && liftl.rotation(rotationUnits::raw) > lift_rotation_error) {
-      spin(liftl, -manual_power);
-      spin(liftr, -manual_power);
+    else if (ctrl.ButtonR2.pressing() && rotation_value(liftl) > lift_rotation_error) {
+      spin(liftl, -lift_power);
+      spin(liftr, -lift_power);
+      if (rotation_value(liftl) > lift_rotation_error) {
+        clamp.spinTo(clamp_max, rotationUnits::raw, clamp_power, velocityUnits::pct);
+      }
     }
     else {
       spin(liftl,0);
