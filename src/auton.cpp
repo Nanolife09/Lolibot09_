@@ -1,85 +1,138 @@
 #include "auton.h"
 #include "driver.h"
 #include "debug.h"
+using namespace std;
 
-int sign;
+void chassisfwd(int y, int power){
+  while(abs(rotation_value(lf))<abs(y)){
+   spin(lf,power);
+   spin(lb,power);
+   spin(rf,power);
+   spin(rb,power); 
+ }
+  lf.stop();
+  lb.stop();
+  rf.stop();
+  rb.stop();
+}
 
-void vertical (int target, int power = 100) {
-  sign = (target < 0) ? -1 : 1;
-  while (std::abs(rotation_value(lf)) < std::abs(target)) {
-    spin(lf, power * sign);
-    spin(rf, power * sign);
-    spin(lb, power * sign);
-    spin(rb, power * sign);
+void chassisturn(int y,int power){
+  while (rotation_value(lf)<y){
+   spin(lf,power);
+   spin(lb,power);
+   spin(rf,-power);
+   spin(rb,-power);
   }
   lf.stop();
   lb.stop();
-  rb.stop();
   rf.stop();
-  lf.resetRotation();
+  rb.stop();
 }
 
-void turn (int target, int power = 100) {
-  sign = (target < 0) ? -1 : 1;
-  while (std::abs(rotation_value(lf)) < std::abs(target)) {
-    spin(lf, power * sign);
-    spin(rf, power * sign);
-    spin(lb, -power * sign);
-    spin(rb, -power * sign);
+void liftup(){
+  while (rotation_value(liftl)<lift_max){
+    spin(liftl,lift_power);
+    spin(liftr,lift_power);    
   }
-  lf.stop();
-  lb.stop();
-  rb.stop();
-  rf.stop();
+  liftl.stop();
+  liftr.stop();
+}
+
+void liftdown(){
+  while(rotation_value(liftl)>0){
+    spin(liftl,-lift_power);
+    spin(liftr,-lift_power);
+  }
+  liftl.stop();
+  liftr.stop();
+}
+
+void klampup(){
+  while(rotation_value(clamp)<clamp_max){
+    spin(clamp,clamp_power);
+  }
+  clamp.stop();
+}
+
+void klampdown(){
+  while(rotation_value(clamp)>0){
+    spin(clamp,-clamp_power);
+  }
+  clamp.stop();
+}
+
+void bklampup(){
+  while(rotation_value(back)<back_max){
+    spin(back,back_power);
+  }
+  back.stop();
+}
+
+void bklampdown(){
+  while(rotation_value(back)>0){
+    spin(back,-back_power);
+  }
+  back.stop();
+}
+
+void red_right(){
+  chassisfwd(10000,50);
+  lf.resetRotation();
+  klampdown();
+  chassisfwd(-10000,50);
+  lf.resetRotation();
+  chassisfwd(50000,50);
   lf.resetRotation();
 }
 
-void red_right () {
+void red_left(){
+  chassisfwd(3000,50);
+  lf.resetRotation();
+  klampdown();
+  chassisfwd(3000,50);
+  klampup();
+}
+
+void blue_left(){
+  chassisfwd(3000,50);
+  lf.resetRotation();
+  klampdown();
+  chassisfwd(3000,50);
+  klampup();
+}
+
+void blue_right(){
+  chassisfwd(10000,50);
+  lf.resetRotation();
+  klampdown();
+  chassisfwd(-10000,50);
+  lf.resetRotation();
+  chassisfwd(50000,50);
+  lf.resetRotation();
+}
+
+void skills(){
 
 }
 
-void red_left () {
+int option = 1;
 
-}
-
-void blue_right () {
-
-}
-
-void blue_left () {
-
-}
-
-void skill () {
-
-}
-
-int auton_option = 4;
-
-void auton_ctrl () {
-  thread x;
-  switch(auton_option) {
+void auton_ctrl(){
+  switch(option){
     case 0:
-      x = red_left;
-      x.join();
-      break;
+    red_left();
+    break;
     case 1:
-      x = red_right;
-      x.join();
-      break;
+    red_right();
+    break;
     case 2:
-      x = blue_left;
-      x.join();
-      break;
+    blue_left();
+    break;
     case 3:
-      x = blue_right;
-      x.join();
-      break;
-    case 4: 
-      x = skill;
-      x.join();
-      break;
+    blue_right();
+    break;
+    case 4:
+    skills();
+    break;
   }
-  thread y = debug;
-  y.join();
 }
