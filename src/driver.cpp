@@ -16,8 +16,8 @@ int lift_power = 100; // sets a lift power (0 to 100)
 int clamp_max = 300; // sets a max limit for the clamp
 int clamp_power = 80; // sets a motor power for the clamp (0 to 100)
 
-int back_max = 1000; // sets a max limit for the back
-int back_power = 100; // sets a power for the back
+int back_max = 1500; // sets a max limit for the back
+int back_power = 50; // sets a power for the back
 
 //-----------------------------DO NOT TOUCH ANYTHING FROM HERE----------------------//
 
@@ -67,26 +67,27 @@ void mogo_clamp_ctrl() {
 
 void back_ctrl() {
   //A for up
-  if (ctrl.ButtonA.pressing() && rotation_value(back) > 0) {
-    spin(back, back_power);
-  }
-  //x for down
-  else if (ctrl.ButtonX.pressing() && rotation_value(back) < clamp_max) {
-    spin(back, -back_power);
-  }
-  else {
-    back.stop();
+  while (true) {
+    if (ctrl.ButtonX.pressing() && rotation_value(back) < back_max) {
+      spin(back, back_power);
+    }
+    //x for down
+    else if (ctrl.ButtonA.pressing() && rotation_value(back) > 0) {
+      spin(back, -back_power);
+    }
+    else {
+      back.stop();
+      back.setBrake(brakeType::hold);
+    }
   }
 }
 
 void mogo_lift_ctrl() {
   thread Lift = manual_lift_ctrl;
   thread Clamp_ctrl = mogo_clamp_ctrl;
-  thread Back = back_ctrl;
   while (true) {
     Lift.join();
     Clamp_ctrl.join();
-    Back.join();
     task::sleep(20);
   }
 }
@@ -134,8 +135,10 @@ void tank_ctrl() {
 void driver_ctrl() {
   thread tank = tank_ctrl;
   thread lift = mogo_lift_ctrl;
+  thread Back = back_ctrl;
   while (true) {
     tank.join();
     lift.join();
+    Back.join();
   }
 }
