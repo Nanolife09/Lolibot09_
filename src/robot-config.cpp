@@ -7,13 +7,13 @@ using namespace vex;
 brain Brain;
 controller ctrl;
 
-motor lf    (PORT5, true);
-motor lb    (PORT4, true);
-motor rf    (PORT9);
+motor lf    (PORT8, true);
+motor lb    (PORT14, true);
+motor rf    (PORT5);
 motor rb    (PORT12);
 motor liftr (PORT3);
 motor liftl (PORT10, true);
-motor back  (PORT4);
+motor back  (PORT7, true);
 motor clamp (PORT6, true);
 
 /**
