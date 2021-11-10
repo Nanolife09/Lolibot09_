@@ -6,10 +6,8 @@ float rotation_value (motor name) {
 
 void debug() {
   while(true){
-    if(ctrl.ButtonA.pressing()){
-      spin(liftl,30);
-      spin(liftr, 30);
-    }
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("Rotation: %f", rotation_value(lf));
   }
 }
 

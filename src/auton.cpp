@@ -1,15 +1,18 @@
 #include "auton.h"
 #include "driver.h"
 #include "debug.h"
-using namespace std;
 
 void chassisfwd(int y, int power){
-  while(abs(rotation_value(lf))<abs(y)){
+  while(std::abs(rotation_value(lf))<std::abs(y)){
    spin(lf,power);
    spin(lb,power);
    spin(rf,power);
    spin(rb,power); 
- }
+  }
+  lf.resetRotation();
+}
+
+void chassisstop() {
   lf.stop();
   lb.stop();
   rf.stop();
@@ -27,6 +30,7 @@ void chassisturn(int y,int power){
   lb.stop();
   rf.stop();
   rb.stop();
+  
 }
 
 void liftup(){
@@ -52,6 +56,7 @@ void klampup(){
     spin(clamp,clamp_power);
   }
   clamp.stop();
+  clamp.setBrake(brakeType::hold);
 }
 
 void klampdown(){
@@ -76,20 +81,25 @@ void bklampdown(){
 }
 
 void red_right(){
-  chassisfwd(10000,50);
-  lf.resetRotation();
+  klampup();
+  task::sleep(20);
+  chassisfwd(1000,20);
+  task::sleep(20);
+  chassisstop();
+  task::sleep(20);
   klampdown();
-  chassisfwd(-10000,50);
-  lf.resetRotation();
-  chassisfwd(50000,50);
-  lf.resetRotation();
+  task::sleep(20);
+  chassisfwd(800,-20);
+  task::sleep(20);
+  chassisstop();
 }
 
 void red_left(){
+  lf.resetRotation();
   chassisfwd(3000,50);
   lf.resetRotation();
   klampdown();
-  chassisfwd(3000,50);
+  chassisfwd(-3000,50);
   klampup();
 }
 
@@ -97,7 +107,7 @@ void blue_left(){
   chassisfwd(3000,50);
   lf.resetRotation();
   klampdown();
-  chassisfwd(3000,50);
+  chassisfwd(-3000,50);
   klampup();
 }
 
@@ -112,7 +122,19 @@ void blue_right(){
 }
 
 void skills(){
-
+  chassisfwd(3000,50);
+  lf.resetRotation();
+  klampdown();
+  chassisturn(500,20);
+  lf.resetRotation();
+  chassisfwd(-3000,50);
+  lf.resetRotation();
+  chassisturn(-500,20);
+  lf.resetRotation();
+  chassisfwd(1000,30);
+  lf.resetRotation();
+  liftup();
+  klampup();
 }
 
 int option = 1;

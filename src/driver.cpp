@@ -13,7 +13,7 @@ int lift_rotation_error = 0; // sets a value so that the rotation error do not m
 int lift_max = 4000; // sets a maximum rotation of the lift
 int lift_power = 100; // sets a lift power (0 to 100)
 
-int clamp_max = 300; // sets a max limit for the clamp
+int clamp_max = 700; // sets a max limit for the clamp
 int clamp_power = 80; // sets a motor power for the clamp (0 to 100)
 
 int back_max = 1500; // sets a max limit for the back
