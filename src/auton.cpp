@@ -3,13 +3,13 @@
 #include "debug.h"
 
 void chassisfwd(int y, int power){
+  lf.resetRotation();
   while(std::abs(rotation_value(lf))<std::abs(y)){
    spin(lf,power);
    spin(lb,power);
    spin(rf,power);
    spin(rb,power); 
   }
-  lf.resetRotation();
 }
 
 void chassisstop() {
@@ -20,7 +20,7 @@ void chassisstop() {
 }
 
 void chassisturn(int y,int power){
-  while (rotation_value(lf)<y){
+  while (rotation_value(lf)<std::abs(y)){
    spin(lf,power);
    spin(lb,power);
    spin(rf,-power);
@@ -61,46 +61,39 @@ void klampup(){
 
 void klampdown(){
   while(rotation_value(clamp)>0){
-    spin(clamp,-clamp_power);
+    spin(clamp,-100);
   }
   clamp.stop();
+  clamp.setBrake(brakeType::hold);
 }
 
-void bklampup(){
-  while(rotation_value(back)<back_max){
-    spin(back,back_power);
+void bklamp(bool x){
+  if (x) {
+    while(rotation_value(back)<back_max){
+      spin(back,back_power);
+    }
+  }
+  else {
+    while(rotation_value(back)>0){
+      spin(back,-back_power);
+    }
   }
   back.stop();
-}
-
-void bklampdown(){
-  while(rotation_value(back)>0){
-    spin(back,-back_power);
-  }
-  back.stop();
+  back.setBrake(brakeType::hold);
 }
 
 void red_right(){
-  klampup();
-  task::sleep(20);
-  chassisfwd(1000,20);
-  task::sleep(20);
-  chassisstop();
-  task::sleep(20);
-  klampdown();
-  task::sleep(20);
-  chassisfwd(800,-20);
-  task::sleep(20);
-  chassisstop();
+  chassisfwd(4000,-80);
+  chassisfwd(500,50);
 }
 
 void red_left(){
-  lf.resetRotation();
-  chassisfwd(3000,50);
-  lf.resetRotation();
+  clamp.spin(directionType::fwd, 100, percentUnits::pct);
+  chassisfwd(1350,100);
+  chassisstop();
   klampdown();
-  chassisfwd(-3000,50);
-  klampup();
+  chassisfwd(1500,-100);
+  chassisstop();
 }
 
 void blue_left(){
@@ -137,7 +130,7 @@ void skills(){
   klampup();
 }
 
-int option = 1;
+int option = 0;
 
 void auton_ctrl(){
   switch(option){
