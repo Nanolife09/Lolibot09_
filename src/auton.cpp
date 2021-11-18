@@ -2,152 +2,112 @@
 #include "driver.h"
 #include "debug.h"
 
-void chassisfwd(int y, int power){
-  lf.resetRotation();
-  while(std::abs(rotation_value(lf))<std::abs(y)){
-   spin(lf,power);
-   spin(lb,power);
-   spin(rf,power);
-   spin(rb,power); 
-  }
-}
+int auton_option = 0;
 
-void chassisstop() {
-  lf.stop();
-  lb.stop();
-  rf.stop();
-  rb.stop();
-}
-
-void chassisturn(int y,int power){
-  while (rotation_value(lf)<std::abs(y)){
-   spin(lf,power);
-   spin(lb,power);
-   spin(rf,-power);
-   spin(rb,-power);
-  }
-  lf.stop();
-  lb.stop();
-  rf.stop();
-  rb.stop();
-  
-}
-
-void liftup(){
-  while (rotation_value(liftl)<lift_max){
-    spin(liftl,lift_power);
-    spin(liftr,lift_power);    
+void auto_lift_up () {
+  while (rotation_value(liftl) < lift_max) {
+    spin(liftl, 100);
+    spin(liftr, 100);
   }
   liftl.stop();
   liftr.stop();
+  liftl.setBrake(brakeType::hold);
+  liftr.setBrake(brakeType::hold);
 }
 
-void liftdown(){
-  while(rotation_value(liftl)>0){
-    spin(liftl,-lift_power);
-    spin(liftr,-lift_power);
+void auto_lift_down () {
+  while (rotation_value(liftl) > 0) {
+    spin(liftl, -100);
+    spin(liftr, -100);
   }
   liftl.stop();
   liftr.stop();
+  liftl.setBrake(brakeType::hold);
+  liftr.setBrake(brakeType::hold);
 }
 
-void klampup(){
-  while(rotation_value(clamp)<clamp_max){
-    spin(clamp,clamp_power);
-  }
+void auto_clamp_up () {
+  while (rotation_value(clamp) < clamp_max) spin(clamp, 100);
   clamp.stop();
   clamp.setBrake(brakeType::hold);
 }
 
-void klampdown(){
-  while(rotation_value(clamp)>0){
-    spin(clamp,-100);
-  }
+void auto_clamp_down () {
+  while (rotation_value(clamp) > 0) spin(clamp, -100);
   clamp.stop();
   clamp.setBrake(brakeType::hold);
 }
 
-void bklamp(bool x){
-  if (x) {
-    while(rotation_value(back)<back_max){
-      spin(back,back_power);
-    }
-  }
-  else {
-    while(rotation_value(back)>0){
-      spin(back,-back_power);
-    }
-  }
+void auto_back_up () {
+  while (rotation_value(back) < back_max) spin(back, 100);
   back.stop();
-  back.setBrake(brakeType::hold);
 }
 
-void red_right(){
-  chassisfwd(4000,-80);
-  chassisfwd(500,50);
+void auto_back_down () {
+  while (rotation_value(back) > 0) spin(back, -100);
+  back.stop();
 }
 
-void red_left(){
-  clamp.spin(directionType::fwd, 100, percentUnits::pct);
-  chassisfwd(1350,100);
-  chassisstop();
-  klampdown();
-  chassisfwd(1500,-100);
-  chassisstop();
+thread t1;
+thread t2;
+thread t3;
+
+void chassis_fwd (int target, int power, bool LIFT = false, bool CLAMP = false, bool BACK = false) {
+  if (LIFT) t1 = auto_lift_up; else t1 = auto_lift_down;
+  if (CLAMP) t2 = auto_clamp_up; else t2 = auto_clamp_down;
+  if (BACK) t3 = auto_back_up; else t3 = auto_back_down;
+  t1.join(); t2.join(); t3.join();
+  while(rotation_value(lf) < target){
+    spin(lf, power);
+    spin(lb, power);
+    spin(rf, power);
+    spin(rb, power);
+  }
+  lf.stop();
+  lb.stop();
+  rf.stop();
+  rb.stop();
 }
 
-void blue_left(){
-  chassisfwd(3000,50);
-  lf.resetRotation();
-  klampdown();
-  chassisfwd(-3000,50);
-  klampup();
+void chassis_turn (int target, int power, bool LIFT = false, bool CLAMP = false, bool BACK = false) {
+  if (LIFT) t1 = auto_lift_up; else t1 = auto_lift_down;
+  if (CLAMP) t2 = auto_clamp_up; else t2 = auto_clamp_down;
+  if (BACK) t3 = auto_back_up; else t3 = auto_back_down;
+  t1.join(); t2.join(); t3.join();
+  while(rotation_value(lf) < target){
+    spin(lf, power);
+    spin(lb, power);
+    spin(rf, -power);
+    spin(rb, -power);
+  }
+  lf.stop();
+  lb.stop();
+  rf.stop();
+  rb.stop();
 }
 
-void blue_right(){
-  chassisfwd(10000,50);
-  lf.resetRotation();
-  klampdown();
-  chassisfwd(-10000,50);
-  lf.resetRotation();
-  chassisfwd(50000,50);
-  lf.resetRotation();
+void Left () {
+
 }
 
-void skills(){
-  chassisfwd(3000,50);
-  lf.resetRotation();
-  klampdown();
-  chassisturn(500,20);
-  lf.resetRotation();
-  chassisfwd(-3000,50);
-  lf.resetRotation();
-  chassisturn(-500,20);
-  lf.resetRotation();
-  chassisfwd(1000,30);
-  lf.resetRotation();
-  liftup();
-  klampup();
+void Right () {
+
 }
 
-int option = 0;
+void SKILL () {
 
-void auton_ctrl(){
-  switch(option){
+}
+
+void auton_ctrl () {
+  switch (auton_option) {
     case 0:
-    red_left();
-    break;
+      Left();
+      break;
     case 1:
-    red_right();
-    break;
+      Right();
+      break;
     case 2:
-    blue_left();
-    break;
-    case 3:
-    blue_right();
-    break;
-    case 4:
-    skills();
-    break;
+      SKILL();
+      break;
   }
 }

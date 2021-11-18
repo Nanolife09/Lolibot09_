@@ -5,7 +5,7 @@
 //------------------------------------------settings----------------------------------------//
 
 int change_sens = 50; // set a axis value where the power of the chassis changes from fast to slow or viceversa (0 to 127)
-int dead_zone = 50; // sets a maximum power of the chassis value for the span of slow mode (0 to 100)
+int dead_zone = 30; // sets a maximum power of the chassis value for the span of slow mode (0 to 100)
 int lift_power_limit = 50; // sets a minimum power value of the chassis when the lift is fully lifted (0 to 100)
 int lift_rotation_error = 0; // sets a value so that the rotation error do not mess up the whole system (do not touch it unless it is necessary)
 
