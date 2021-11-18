@@ -6,6 +6,7 @@ using namespace vex;
 // A global instance of brain used for printing to the V5 brain screen
 brain Brain;
 controller ctrl;
+competition Competition;
 
 motor lf    (PORT8, true);
 motor lb    (PORT14, true);

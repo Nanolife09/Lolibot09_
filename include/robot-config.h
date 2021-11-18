@@ -2,6 +2,7 @@ using namespace vex;
 
 extern brain Brain;
 extern controller ctrl;
+extern competition Competition;
 
 extern motor lb;
 extern motor rf;

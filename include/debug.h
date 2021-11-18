@@ -1,7 +1,6 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 #include "vex.h"
-#include "robot-config.h"
 #include "driver.h"
 #include <iostream>
 #include <cmath>

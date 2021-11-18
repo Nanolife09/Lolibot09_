@@ -1,5 +1,4 @@
 #include "vex.h"
-#include "robot-config.h"
 #include "debug.h"
 #include <cmath>
 
