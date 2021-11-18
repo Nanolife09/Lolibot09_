@@ -7,7 +7,12 @@ float rotation_value (motor name) {
 void debug() {
   while(true){
     Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Rotation: %f", rotation_value(lf));
+    if (Brain.Battery.capacity() > 50) {
+      Brain.Screen.print("ACCELERATION: ON");
+    }
+    else {
+      Brain.Screen.print("ACCELERATION: OFF");
+    }
   }
 }
 

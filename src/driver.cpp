@@ -94,29 +94,33 @@ void mogo_lift_ctrl() {
 
 void tank_ctrl() {
   while (true) {
-    //Left motors power calculations //DO NOT TOUCH THIS!
-    // sets a motor power based on the axis value
-    if (-change_sens <= ctrl.Axis3.value() && ctrl.Axis3.value() <= change_sens) {
-      left_power = (dead_zone/std::pow(change_sens,3)) * std::pow(ctrl.Axis3.value(),3);
+    if (Brain.Battery.capacity() > 50) {
+      //Left motors power calculations //DO NOT TOUCH THIS!
+      // sets a motor power based on the axis value
+      if (-change_sens <= ctrl.Axis3.value() && ctrl.Axis3.value() <= change_sens) {
+        left_power = (dead_zone/std::pow(change_sens,3)) * std::pow(ctrl.Axis3.value(),3);
+      }
+      else {
+        left_power = ctrl.Axis3.value();
+      }
+
+      //Right motors power calculations // DO NOT TOUCH THIS!
+      // sets a motor power based on the axis value
+      if (-change_sens < ctrl.Axis2.value() && ctrl.Axis2.value() < change_sens) {
+        right_power = dead_zone/std::pow(change_sens,3) * std::pow(ctrl.Axis2.value(),3);
+      }
+      else {
+        right_power = ctrl.Axis2.value();
+      }
     }
     else {
+      lift_power_limit = 50;
       left_power = ctrl.Axis3.value();
+      right_power = ctrl.Axis2.value();
     }
-    
+
     // sets a motor power based on the rotation of the lift 
     left_power *= -(1 - (lift_power_limit * 0.01)) * liftl.rotation(rotationUnits::raw)/(lift_max + lift_rotation_error) + 1;
-
-    //Right motors power calculations // DO NOT TOUCH THIS!
-    // sets a motor power based on the axis value
-    if (-change_sens < ctrl.Axis2.value() && ctrl.Axis2.value() < change_sens) {
-      right_power = dead_zone/std::pow(change_sens,3) * std::pow(ctrl.Axis2.value(),3);
-    }
-    else if (ctrl.Axis2.value() < -change_sens) {
-      right_power = ctrl.Axis2.value();
-    }
-    else if (change_sens < ctrl.Axis2.value()) {
-      right_power = ctrl.Axis2.value();
-    }
 
     // sets a motor power based on the rotation of the lift
     right_power *= -(1 - (lift_power_limit * 0.01)) * liftl.rotation(rotationUnits::raw)/(lift_max + lift_rotation_error) + 1;
