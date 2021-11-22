@@ -2,8 +2,6 @@
 #include "driver.h"
 #include "debug.h"
 
-int auton_option = 0;
-
 void auto_lift_up () {
   while (rotation_value(liftl) < lift_max) {
     spin(liftl, 100);
@@ -57,7 +55,7 @@ void chassis_fwd (int target, int power, bool LIFT = false, bool CLAMP = false, 
   if (CLAMP) t2 = auto_clamp_up; else t2 = auto_clamp_down;
   if (BACK) t3 = auto_back_up; else t3 = auto_back_down;
   t1.join(); t2.join(); t3.join();
-  while(rotation_value(lf) < target){
+  while(std::abs(rotation_value(lf)) < std::abs(target)){
     spin(lf, power);
     spin(lb, power);
     spin(rf, power);
@@ -67,6 +65,10 @@ void chassis_fwd (int target, int power, bool LIFT = false, bool CLAMP = false, 
   lb.stop();
   rf.stop();
   rb.stop();
+  lf.resetRotation();
+  lb.resetRotation();
+  rf.resetRotation();
+  rb.resetRotation();
 }
 
 void chassis_turn (int target, int power, bool LIFT = false, bool CLAMP = false, bool BACK = false) {
@@ -74,7 +76,7 @@ void chassis_turn (int target, int power, bool LIFT = false, bool CLAMP = false,
   if (CLAMP) t2 = auto_clamp_up; else t2 = auto_clamp_down;
   if (BACK) t3 = auto_back_up; else t3 = auto_back_down;
   t1.join(); t2.join(); t3.join();
-  while(rotation_value(lf) < target){
+  while(std::abs(rotation_value(lf)) < std::abs(target)){
     spin(lf, power);
     spin(lb, power);
     spin(rf, -power);
@@ -84,6 +86,10 @@ void chassis_turn (int target, int power, bool LIFT = false, bool CLAMP = false,
   lb.stop();
   rf.stop();
   rb.stop();
+  lf.resetRotation();
+  lb.resetRotation();
+  rf.resetRotation();
+  rb.resetRotation();
 }
 
 void Left () {
@@ -95,8 +101,13 @@ void Right () {
 }
 
 void SKILL () {
-
+  chassis_fwd(1000, 100);
+  chassis_fwd(1000, 100, true);
+  chassis_fwd(1000, 100, false, true);
+  chassis_fwd(1000, 100, false, false, true);
 }
+
+int auton_option = 2;
 
 void auton_ctrl () {
   switch (auton_option) {

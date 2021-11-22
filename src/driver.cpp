@@ -51,10 +51,10 @@ void manual_lift_ctrl() {
 
 void mogo_clamp_ctrl() {
   while (true) {
-    if (ctrl.ButtonL1.pressing() && clamp.rotation(rotationUnits::raw) < clamp_max) {
+    if (ctrl.ButtonL1.pressing()) {
       spin(clamp, clamp_power);
     }
-    else if (ctrl.ButtonL2.pressing() && clamp.rotation(rotationUnits::raw) > 0) {
+    else if (ctrl.ButtonL2.pressing()) {
       spin(clamp, -clamp_power);
     }
     else {
