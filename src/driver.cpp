@@ -9,7 +9,7 @@ int dead_zone = 30; // sets a maximum power of the chassis value for the span of
 int lift_power_limit = 50; // sets a minimum power value of the chassis when the lift is fully lifted (0 to 100)
 int lift_rotation_error = 0; // sets a value so that the rotation error do not mess up the whole system (do not touch it unless it is necessary)
 
-int lift_max = 4000; // sets a maximum rotation of the lift
+int lift_max = 4250; // sets a maximum rotation of the lift
 int lift_power = 100; // sets a lift power (0 to 100)
 
 int clamp_max = 700; // sets a max limit for the clamp
@@ -81,9 +81,10 @@ void back_ctrl() {
   }
 }
 
+thread Lift = manual_lift_ctrl;
+thread Clamp_ctrl = mogo_clamp_ctrl;
+
 void mogo_lift_ctrl() {
-  thread Lift = manual_lift_ctrl;
-  thread Clamp_ctrl = mogo_clamp_ctrl;
   while (true) {
     Lift.join();
     Clamp_ctrl.join();
