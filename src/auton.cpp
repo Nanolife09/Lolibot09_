@@ -1,166 +1,61 @@
 #include "auton.h"
 #include "driver.h"
 #include "debug.h"
+#include <chrono>
 
-void auto_lift_up () {
-  while (rotation_value(liftl) < lift_max) {
-    spin(liftl, 100);
-    spin(liftr, 100);
-  }
-  liftl.stop();
-  liftr.stop();
-  liftl.setBrake(brakeType::hold);
-  liftr.setBrake(brakeType::hold);
-}
+const float KP = 0.003;
+const float KI = 0.0002;
+const float KD = 0.001;
+int right_prev_error = 0, left_prev_error = 0, right_position_error = 0, left_position_error = 0, time_error = 0;
+float right_proportional = 0, right_integeral = 0, right_derivative = 0, left_proportional = 0, left_integeral = 0, left_derivative = 0;
 
-void auto_lift_down () {
-  while (rotation_value(liftl) > 0) {
-    spin(liftl, -100);
-    spin(liftr, -100);
-  }
-  liftl.stop();
-  liftr.stop();
-  liftl.setBrake(brakeType::hold);
-  liftr.setBrake(brakeType::hold);
-}
+auto start = std::chrono::high_resolution_clock::now();
+auto end = std::chrono::high_resolution_clock::now();
 
-void auto_clamp_up () {
-  while (rotation_value(clamp) < clamp_max) {
-    spin(clamp, 100);
-  }
-  clamp.stop();
-  clamp.setBrake(brakeType::hold);
-}
-
-void auto_clamp_down () {
-  while (rotation_value(clamp) > 0) {
-    spin(clamp, -100);
+void PID_forward(float target) {
+  start = std::chrono::high_resolution_clock::now();
+  while (std::abs(rotation_value(lf)) < std::abs(target)) {
+    end = std::chrono::high_resolution_clock::now();
+    time_error = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    right_prev_error = right_position_error;
+    left_prev_error = left_position_error;
+    right_position_error = std::abs(target) - std::abs(rotation_value(rf));
+    left_position_error = std::abs(target) - std::abs(rotation_value(lf));
+    right_proportional = KP * right_position_error;
+    left_proportional = KP * left_position_error;
+    right_integeral = KI * right_position_error * time_error;
+    left_integeral = KI * left_position_error * time_error;
+    right_derivative = KD * right_position_error / time_error;
+    left_derivative = KD * left_position_error / time_error;
+    right_power = right_proportional + right_integeral + right_derivative;
+    left_power = left_proportional + left_integeral + left_derivative;
+    if (target < 0) {
+      left_power *= -1;
+      right_power *= -1;
+    }
+    spin(lf, left_power);
+    spin(lb, left_power);
+    spin(rf, right_power);
+    spin(rb, right_power);
+    vex::task::sleep(20);
   } 
-  clamp.stop();
-  clamp.setBrake(brakeType::hold);
-}
-
-void auto_back_up () {
-  while (rotation_value(back) < back_max) {
-    spin(back, 100);
-  }
-  back.stop();
-  back.setBrake(brakeType::hold);
-}
-
-void auto_back_down () {
-  while (rotation_value(back) > 0) {
-    spin(back, -100);
-  }
-  back.stop();
-}
-
-thread t1;
-thread t2;
-thread t3;
-
-void chassis_fwd (int target, int power, bool LIFT = false, bool CLAMP = false, bool BACK = false) {
-  if (LIFT) {
-    t1 = auto_lift_up;
-  }
-  else {
-    t1 = auto_lift_down;
-  }
-  if (CLAMP) {
-    t2 = auto_clamp_up; 
-  } else {
-    t2 = auto_clamp_down;
-  }
-  if (BACK) {
-    t3 = auto_back_up;
-  }
-  else {
-    t3 = auto_back_down;
-  }
-  t1.join(); 
-  t2.join(); 
-  t3.join();
-  while(std::abs(rotation_value(lf)) < std::abs(target)){
-    spin(lf, power);
-    spin(lb, power);
-    spin(rf, power);
-    spin(rb, power);
-  }
+  vex::task::sleep(50);
   lf.stop();
   lb.stop();
   rf.stop();
   rb.stop();
+  lf.setBrake(brakeType::hold);
+  lb.setBrake(brakeType::hold);
+  rf.setBrake(brakeType::hold);
+  rb.setBrake(brakeType::hold);
+  display_rotation_value();
+}
+
+void auton_ctrl() {
   lf.resetRotation();
   lb.resetRotation();
   rf.resetRotation();
   rb.resetRotation();
-}
-
-void chassis_turn (int target, int power, bool LIFT = false, bool CLAMP = false, bool BACK = false) {
-  if (LIFT)  {
-    t1 = auto_lift_up; 
-  }
-  else {
-    t1 = auto_lift_down;
-  }
-  if (CLAMP) {
-    t2 = auto_clamp_up;
-  }
-  else {
-    t2 = auto_clamp_down;
-  }
-  if (BACK)  {
-    t3 = auto_back_up; 
-  }
-  else {
-    t3 = auto_back_down;
-  }
-  t1.join(); 
-  t2.join(); 
-  t3.join();
-  while(std::abs(rotation_value(lf)) < std::abs(target)){
-    spin(lf, power);
-    spin(lb, power);
-    spin(rf, -power);
-    spin(rb, -power);
-  }
-  lf.stop();
-  lb.stop();
-  rf.stop();
-  rb.stop();
-  lf.resetRotation();
-  lb.resetRotation();
-  rf.resetRotation();
-  rb.resetRotation();
-}
-
-void Left () {
-
-}
-
-void Right () {
-
-}
-
-void SKILL () {
-  chassis_fwd(1000, 100);
-  chassis_fwd(1000, 100, true);
-  chassis_fwd(1000, 100, false, true);
-  chassis_fwd(1000, 100, false, false, true);
-}
-
-int auton_option = 2;
-
-void auton_ctrl () {
-  switch (auton_option) {
-    case 0:
-      Left();
-      break;
-    case 1:
-      Right();
-      break;
-    case 2:
-      SKILL();
-      break;
-  }
+  PID_forward(1000);
+  PID_forward(1000);
 }

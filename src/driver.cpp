@@ -36,9 +36,6 @@ void manual_lift_ctrl() {
     else if (ctrl.ButtonR2.pressing() && rotation_value(liftl) > lift_rotation_error) {
       spin(liftl, -lift_power);
       spin(liftr, -lift_power);
-      if (rotation_value(liftl) > lift_rotation_error) {
-        clamp.spinTo(clamp_max, rotationUnits::raw, clamp_power, velocityUnits::pct);
-      }
     }
     else {
       spin(liftl,0);
@@ -140,9 +137,11 @@ void driver_ctrl() {
   thread tank = tank_ctrl;
   thread lift = mogo_lift_ctrl;
   thread Back = back_ctrl;
+  thread debug = display_acceleration_mode;
   while (true) {
     tank.join();
     lift.join();
     Back.join();
+    debug.join();
   }
 }

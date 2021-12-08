@@ -5,7 +5,8 @@
 #include <iostream>
 #include <cmath>
 
-extern void debug();
+extern void display_acceleration_mode();
 extern float rotation_value (motor name);
+extern void display_rotation_value();
 
 #endif
