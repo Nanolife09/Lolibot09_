@@ -8,7 +8,7 @@ controller ctrl;
 competition Competition;
 
 motor lf    (PORT8, true);
-motor lb    (PORT12, true); 
+motor lb    (PORT13, true); 
 motor rf    (PORT5);
 motor rb    (PORT11); 
 motor liftr (PORT3);

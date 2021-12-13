@@ -9,4 +9,5 @@ int main() {
   vexcodeInit();
   Competition.drivercontrol(driver_ctrl);
   Competition.autonomous(auton_ctrl);
+  display_rotation_value();
 }
