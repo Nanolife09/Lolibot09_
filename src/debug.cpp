@@ -16,15 +16,23 @@ void display_acceleration_mode() {
   }
 }
 
-void display_rotation_value() {
+void display_rotation_value(int x) {
   while (true) {
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Left front: %f", rotation_value(lf));
-    Brain.Screen.setCursor(3, 1);
-    Brain.Screen.print("Left back: %f", rotation_value(lb));
-    Brain.Screen.setCursor(5, 1);
-    Brain.Screen.print("Right front: %f", rotation_value(rf));
-    Brain.Screen.setCursor(7, 1);
-    Brain.Screen.print("Right back: %f", rotation_value(rb));
+    if (x == 1) {
+      Brain.Screen.setCursor(1, 1);
+      Brain.Screen.print("Left front: %f", rotation_value(lf));
+      Brain.Screen.setCursor(3, 1);
+      Brain.Screen.print("Left back: %f", rotation_value(lb));
+      Brain.Screen.setCursor(5, 1);
+      Brain.Screen.print("Right front: %f", rotation_value(rf));
+      Brain.Screen.setCursor(7, 1);
+      Brain.Screen.print("Right back: %f", rotation_value(rb));
+    }
+    else if (x == 2) {
+      Brain.Screen.setCursor(1, 1);
+      Brain.Screen.print("Lift: %f", rotation_value(liftl));
+      Brain.Screen.setCursor(3, 1);
+      Brain.Screen.print("Back: %f", rotation_value(back));
+    }
   }
 }

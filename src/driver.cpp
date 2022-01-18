@@ -9,8 +9,9 @@ int dead_zone = 30; // sets a maximum power of the chassis value for the span of
 int lift_power_limit = 50; // sets a minimum power value of the chassis when the lift is fully lifted (0 to 100)
 int lift_rotation_error = 0; // sets a value so that the rotation error do not mess up the whole system (do not touch it unless it is necessary)
 
-int lift_max = 4250; // sets a maximum rotation of the lift
-int lift_power = 100; // sets a lift power (0 to 100)
+int lift_max = 2000; // sets a maximum rotation of the lift (no over 2600)
+int lift_power_up = 90; // sets a lift power (0 to 100)
+int lift_power_down = 60; // sets a lift power (0 to 100)
 
 int clamp_max = 700; // sets a max limit for the clamp
 int clamp_power = 80; // sets a motor power for the clamp (0 to 100)
@@ -30,12 +31,12 @@ int right_power;
 void manual_lift_ctrl() {
   while (true) {
     if (ctrl.ButtonR1.pressing() && rotation_value(liftl) < lift_max) {
-      spin(liftl, lift_power);
-      spin(liftr, lift_power);
+      spin(liftl, lift_power_up);
+      spin(liftr, lift_power_up);
     }
     else if (ctrl.ButtonR2.pressing() && rotation_value(liftl) > lift_rotation_error) {
-      spin(liftl, -lift_power);
-      spin(liftr, -lift_power);
+      spin(liftl, -lift_power_down);
+      spin(liftr, -lift_power_down);
     }
     else {
       spin(liftl,0);
@@ -137,11 +138,11 @@ void driver_ctrl() {
   thread tank = tank_ctrl;
   thread lift = mogo_lift_ctrl;
   thread Back = back_ctrl;
-  thread debug = display_acceleration_mode;
+  //thread debug = display_acceleration_mode;
   while (true) {
     tank.join();
     lift.join();
     Back.join();
-    debug.join();
+    //debug.join();
   }
 }

@@ -7,6 +7,6 @@
 
 extern void display_acceleration_mode();
 extern float rotation_value (motor name);
-extern void display_rotation_value();
+extern void display_rotation_value(int x);
 
 #endif
